@@ -7,11 +7,18 @@
 //
 
 import UIKit
+import SocketIO
 
 class connectController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        TTTSocket.sharderinstance.connect()
+        
+        TTTSocket.sharderinstance.socket.on("join_game", callback: { (data, ack) in
+            self.performSegue(withIdentifier: "onlineController", sender: data)
+        })
 
         // Do any additional setup after loading the view.
     }
@@ -21,7 +28,32 @@ class connectController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if(segue.identifier == "onlineController"){
+            let controller = segue.destination as! onlineController
+            controller.data = sender
+        }
+    }
+    
+    @IBAction func playsOnlinePressed(_ sender: UIButton) {
+        print("kekl0rd")
+        
+        switch TTTSocket.sharderinstance.socket.status {
+        case SocketIOClientStatus.connected:
+            print("connectedd")
+        case SocketIOClientStatus.connecting:
+            print("connecting")
+        case SocketIOClientStatus.disconnected:
+            print("disconnected")
+        case SocketIOClientStatus.notConnected:
+            print("not connected")
+        }
+        
+        TTTSocket.sharderinstance.socket.emit("join_queue", "kekl0rd")
+    }
+    
     /*
     // MARK: - Navigation
 
